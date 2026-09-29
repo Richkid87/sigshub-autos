@@ -24,11 +24,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
     ],
   },
-
-  // Disable Turbopack to prevent child Node process crashing during PostCSS transformation
-  experimental: {
-    turbopack: false,
-  },
 }
 
 module.exports = nextConfig
