@@ -25,6 +25,8 @@ You can either:
 
 ### 3. Add Environment Variables
 In the **Environment Variables** section in the Node.js settings, add:
+- `SUPABASE_URL` = `https://zbkjuvarxaijwmugkkwr.supabase.co`
+- `SUPABASE_API_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpia2p1dmFyeGFpandtdWdra3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDU2MjIsImV4cCI6MjA5NzUyMTYyMn0.KmwA5C6hzXTWbgNxmPVwcF-IKai3D7qP-uXjQNcvY6E`
 - `NEXT_PUBLIC_SUPABASE_URL` = `https://zbkjuvarxaijwmugkkwr.supabase.co`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpia2p1dmFyeGFpandtdWdra3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDU2MjIsImV4cCI6MjA5NzUyMTYyMn0.KmwA5C6hzXTWbgNxmPVwcF-IKai3D7qP-uXjQNcvY6E`
 - `ADMIN_PASSWORD` = `Standard2026`
