@@ -3,6 +3,9 @@ const nextConfig = {
   // Prevent exposing client source maps in production
   productionBrowserSourceMaps: false,
   
+  // Standalone output bundles necessary production dependencies for Hostinger & VPS deployment
+  output: 'standalone',
+  
   // Security & performance optimizations
   poweredByHeader: false,
   compress: true,
