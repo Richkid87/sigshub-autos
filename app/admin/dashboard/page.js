@@ -82,7 +82,13 @@ export default function AdminDashboard() {
         setUploadProgress(true)
         imageUrl = await uploadCarImage(imageFile)
         setUploadProgress(false)
-        // Delete old image if editing
+        if (!imageUrl) {
+          // Upload failed — inform admin and abort save so image_url is not null
+          showToast('❌ Image upload failed. Check your Supabase storage bucket permissions and try again.', 'error')
+          setSaving(false)
+          return
+        }
+        // Delete old image if editing and a new one was uploaded successfully
         if (editCar?.image_url) await deleteCarImage(editCar.image_url)
       }
 
@@ -91,17 +97,19 @@ export default function AdminDashboard() {
       delete payload.created_at
 
       if (editCar) {
-        await updateCar(editCar.id, payload)
+        const result = await updateCar(editCar.id, payload)
+        if (!result) throw new Error('Update returned no data — check Supabase RLS policies')
         showToast('Car updated successfully! ✅')
       } else {
-        await addCar(payload)
+        const result = await addCar(payload)
+        if (!result) throw new Error('Insert returned no data — check Supabase RLS policies')
         showToast('New car added! 🚗')
       }
 
       await loadCars()
       setView('grid')
     } catch (err) {
-      showToast('Error saving car: ' + err.message, 'error')
+      showToast('❌ ' + (err.message || 'Error saving car'), 'error')
     }
     setSaving(false)
   }
@@ -114,7 +122,7 @@ export default function AdminDashboard() {
       setConfirmDelete(null)
       await loadCars()
     } catch (err) {
-      showToast('Error deleting car', 'error')
+      showToast('❌ ' + (err.message || 'Error deleting car'), 'error')
     }
   }
 
@@ -124,7 +132,7 @@ export default function AdminDashboard() {
       showToast(`${car.name} marked as sold`)
       await loadCars()
     } catch (err) {
-      showToast('Error updating car', 'error')
+      showToast('❌ ' + (err.message || 'Error updating car'), 'error')
     }
   }
 
@@ -202,7 +210,7 @@ export default function AdminDashboard() {
               </button>
             )}
             <div>
-              <span className="font-jakarta font-bold text-lg text-primary">SigsHub Admin</span>
+              <h1 className="font-jakarta font-bold text-lg text-primary">SigsHub Admin Dashboard</h1>
               <p className="text-xs text-on-surface-variant">
                 {view === 'grid' ? 'Inventory Dashboard' : editCar ? `Editing: ${editCar.name}` : 'Add New Car'}
               </p>
@@ -297,7 +305,7 @@ export default function AdminDashboard() {
                     {/* Image */}
                     <div className="relative h-40 bg-surface-container">
                       {car.image_url ? (
-                        <img src={car.image_url} alt={car.name} className="w-full h-full object-cover" />
+                        <img src={car.image_url} alt={car.name || 'Vehicle photo'} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-brand-lavender">
                           <span className="material-symbols-outlined text-primary/30 text-4xl">directions_car</span>
@@ -342,7 +350,7 @@ export default function AdminDashboard() {
                             <span className="text-[9px] font-bold text-secondary">Sold</span>
                           </button>
                         ) : (
-                          <button onClick={() => updateCar(car.id, { available: true, badge: '' }).then(loadCars)}
+                          <button onClick={() => updateCar(car.id, { available: true, badge: '' }).then(loadCars).catch(err => showToast('❌ ' + err.message, 'error'))}
                             className="flex flex-col items-center gap-1 py-2 rounded-lg bg-surface-container-low hover:bg-green-50 transition-colors">
                             <span className="material-symbols-outlined text-green-600 text-sm">refresh</span>
                             <span className="text-[9px] font-bold text-green-600">Relist</span>
@@ -390,7 +398,7 @@ export default function AdminDashboard() {
                 >
                   {imagePreview ? (
                     <>
-                      <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                      <img src={imagePreview} alt="Vehicle image preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                         <span className="text-white font-semibold text-sm flex items-center gap-2">
                           <span className="material-symbols-outlined text-sm">upload</span>

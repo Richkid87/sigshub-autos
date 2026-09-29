@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function CarCard({ car, variant = 'horizontal' }) {
+export default function CarCard({ car }) {
   const {
     id = 1,
     name = '[Car Name]',
@@ -15,22 +15,25 @@ export default function CarCard({ car, variant = 'horizontal' }) {
     badge = null,
     available = true,
   } = car || {}
-  const displayImage = image || image_url || null
+
+  // Normalize: admin saves as image_url; static data uses image
+  const displayImage = image_url || image || null
 
   return (
     <div className="bg-white rounded-lg shadow-soft border border-outline-variant/30 overflow-hidden flex flex-col transition-all duration-200 card-hover group">
       {/* Image Area */}
       <div className="relative h-52 md:h-60 lg:h-64 bg-surface-container flex-shrink-0 overflow-hidden">
         {displayImage ? (
-          <Image
+          // Use a standard <img> tag so any URL (Supabase storage, external,
+          // blob, data URI) renders without Next.js domain/format restrictions.
+          <img
             src={displayImage}
-            alt={name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            alt={`${year ? year + ' ' : ''}${name || 'Car'}`}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
         ) : (
-          /* Placeholder slot for backend image */
+          /* Placeholder when no image has been uploaded yet */
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-surface-container to-brand-lavender">
             <span className="material-symbols-outlined text-primary-fixed-dim text-4xl">directions_car</span>
             <span className="text-[10px] text-outline uppercase tracking-wider font-semibold">[CAR IMAGE]</span>
@@ -55,7 +58,7 @@ export default function CarCard({ car, variant = 'horizontal' }) {
           </span>
         )}
 
-        {/* Availability */}
+        {/* Availability overlay */}
         {!available && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white/90 text-on-surface text-xs font-bold px-3 py-1 rounded-full">Reserved</span>

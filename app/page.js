@@ -18,7 +18,19 @@ const testimonials = [
   { id: 3, text: 'Great selection at very fair prices. The booking process was super easy.', name: 'Amaka', city: 'Port Harcourt', stars: 5 },
 ]
 
-export const revalidate = 60
+// Always re-fetch from Supabase so admin updates (images, featured toggles)
+// appear on the front page immediately without waiting for cache expiry.
+export const dynamic = 'force-dynamic'
+
+export const metadata = {
+  title: 'Find Your Perfect Ride in Nigeria | SigsHub Autos',
+  description: 'Explore quality verified pre-owned cars in Lagos & across Nigeria. Best prices, free vehicle inspections, flexible financing, and nationwide delivery.',
+  openGraph: {
+    title: 'Find Your Perfect Ride in Nigeria | SigsHub Autos',
+    description: 'Explore quality verified pre-owned cars in Lagos & across Nigeria. Best prices, free vehicle inspections, and nationwide delivery.',
+    images: ['/og-image.png'],
+  },
+}
 
 export default async function HomePage() {
   const [featuredCars, latestArrivals] = await Promise.all([

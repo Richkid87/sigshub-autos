@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import WhatsAppFAB from '../components/WhatsAppFAB'
-import { allCars } from '../data/cars'
+import { getAllCars } from '../lib/supabase'
 
 const STEPS = ['Select Car', 'Appointment Type', 'Date & Time', 'Your Details', 'Confirm']
 
@@ -37,6 +37,7 @@ export default function BookingsPage() {
   const today = new Date()
   const [step, setStep] = useState(1)
   const [bookingRef] = useState(generateRef())
+  const [allCars, setAllCars] = useState([])
   const [form, setForm] = useState({
     carId: '',
     appointmentType: '',
@@ -50,6 +51,15 @@ export default function BookingsPage() {
   })
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
+
+  // Fetch live car inventory from Supabase so the booking form always
+  // reflects the current admin inventory (new cars, removed cars, etc.)
+  useEffect(() => {
+    getAllCars().then(data => {
+      // Only show available cars in the booking selector
+      setAllCars(data.filter(c => c.available))
+    })
+  }, [])
 
   const selectedCar = allCars.find(c => String(c.id) === String(form.carId))
 
@@ -142,8 +152,8 @@ export default function BookingsPage() {
 
             {selectedCar && (
               <div className="bg-brand-lavender rounded-lg p-4 flex gap-4 items-center">
-                {selectedCar.image && (
-                  <img src={selectedCar.image} alt={selectedCar.name} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
+                {(selectedCar.image_url || selectedCar.image) && (
+                  <img src={selectedCar.image_url || selectedCar.image} alt={selectedCar.name || 'Selected car for inspection'} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
                 )}
                 <div>
                   <p className="font-semibold text-on-surface text-sm">{selectedCar.name}</p>

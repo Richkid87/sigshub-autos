@@ -1,11 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import CarCard from '../components/CarCard'
 import WhatsAppFAB from '../components/WhatsAppFAB'
-import { allCars } from '../data/cars'
+import { getAllCars } from '../lib/supabase'
 
 const filters = {
   brand: ['All Brands', 'Toyota', 'Honda', 'Lexus', 'Mercedes', 'BMW', 'Range Rover', 'Ford'],
@@ -16,6 +16,8 @@ const filters = {
 }
 
 export default function CarGalleryPage() {
+  const [allCars, setAllCars] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeFilters, setActiveFilters] = useState({
     brand: 'All Brands',
     bodyType: 'All Types',
@@ -26,21 +28,42 @@ export default function CarGalleryPage() {
   const [sort, setSort] = useState('Newest First')
   const [showFilters, setShowFilters] = useState(false)
 
-  // Add placeholder cars to fill the grid
-  const placeholderCars = Array.from({ length: 10 }, (_, i) => ({
-    id: 100 + i,
-    name: '[Car Name]',
-    year: '20XX',
-    price: '₦0,000,000',
-    mileage: '—',
-    fuel: 'Petrol',
-    transmission: 'Automatic',
-    image: null,
-    badge: null,
-    available: true,
-  }))
+  // Fetch all cars from Supabase when the gallery loads
+  useEffect(() => {
+    async function loadCars() {
+      setLoading(true)
+      const data = await getAllCars()
+      setAllCars(data)
+      setLoading(false)
+    }
+    loadCars()
+  }, [])
 
-  const displayCars = [...allCars, ...placeholderCars].slice(0, 10)
+  // Apply filters
+  const filteredCars = allCars.filter((car) => {
+    if (activeFilters.brand !== 'All Brands') {
+      const brand = activeFilters.brand.toLowerCase()
+      if (!car.name?.toLowerCase().includes(brand)) return false
+    }
+    if (activeFilters.bodyType !== 'All Types') {
+      if (car.body_type !== activeFilters.bodyType) return false
+    }
+    if (activeFilters.fuel !== 'All Fuels') {
+      if (car.fuel !== activeFilters.fuel) return false
+    }
+    if (activeFilters.transmission !== 'All') {
+      if (car.transmission !== activeFilters.transmission) return false
+    }
+    return true
+  })
+
+  // Apply sorting
+  const displayCars = [...filteredCars].sort((a, b) => {
+    if (sort === 'Newest First') {
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0)
+    }
+    return 0
+  })
 
   return (
     <div className="bg-surface min-h-screen">
@@ -102,7 +125,7 @@ export default function CarGalleryPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
               <div>
                 <p className="text-sm text-on-surface-variant">
-                  Showing <span className="font-bold text-on-surface">{displayCars.length}</span> cars
+                  Showing <span className="font-bold text-on-surface">{loading ? '…' : displayCars.length}</span> cars
                 </p>
               </div>
               <div className="flex gap-3 items-center">
@@ -134,7 +157,11 @@ export default function CarGalleryPage() {
                     <label className="text-[10px] font-bold text-outline uppercase tracking-wider block mb-1">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </label>
-                    <select className="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg text-xs p-2 text-on-surface">
+                    <select
+                      value={activeFilters[key]}
+                      onChange={(e) => setActiveFilters(prev => ({ ...prev, [key]: e.target.value }))}
+                      className="w-full bg-surface-container-low border border-outline-variant/40 rounded-lg text-xs p-2 text-on-surface"
+                    >
                       {options.map(opt => <option key={opt}>{opt}</option>)}
                     </select>
                   </div>
@@ -143,27 +170,42 @@ export default function CarGalleryPage() {
             )}
 
             {/* Cars Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayCars.map((car) => (
-                <CarCard key={car.id} car={car} />
-              ))}
-
-              {/* Add New Car CTA — hints at CMS integration */}
-              <div className="bg-brand-lavender border-2 border-dashed border-primary/30 rounded-lg flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[300px]">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary">add</span>
-                </div>
-                <p className="font-inter font-semibold text-primary text-sm">New stock coming soon</p>
-                <p className="text-xs text-on-surface-variant">Connect to your backend to auto-populate listings</p>
+            {loading ? (
+              <div className="text-center py-20 text-on-surface-variant">
+                <span className="material-symbols-outlined text-5xl text-primary/30 animate-spin">autorenew</span>
+                <p className="mt-4">Loading inventory...</p>
               </div>
-            </div>
+            ) : displayCars.length === 0 ? (
+              <div className="text-center py-20 bg-brand-lavender rounded-xl border-2 border-dashed border-primary/20">
+                <span className="material-symbols-outlined text-5xl text-primary/30">directions_car</span>
+                <p className="font-semibold text-on-surface mt-4">No cars found</p>
+                <p className="text-on-surface-variant text-sm mt-1">Try clearing the filters or check back soon for new stock.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayCars.map((car) => (
+                  <CarCard key={car.id} car={car} />
+                ))}
 
-            {/* Load More */}
-            <div className="mt-10 text-center">
-              <button className="border-2 border-primary text-primary px-10 py-3 rounded-full font-semibold hover:bg-primary hover:text-white transition-all">
-                Load More Cars
-              </button>
-            </div>
+                {/* New stock hint */}
+                <div className="bg-brand-lavender border-2 border-dashed border-primary/30 rounded-lg flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[300px]">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-primary">add</span>
+                  </div>
+                  <p className="font-inter font-semibold text-primary text-sm">New stock coming soon</p>
+                  <p className="text-xs text-on-surface-variant">Check back regularly for new arrivals</p>
+                </div>
+              </div>
+            )}
+
+            {/* Load More — only show when there are cars */}
+            {!loading && displayCars.length > 0 && (
+              <div className="mt-10 text-center">
+                <button className="border-2 border-primary text-primary px-10 py-3 rounded-full font-semibold hover:bg-primary hover:text-white transition-all">
+                  Load More Cars
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
