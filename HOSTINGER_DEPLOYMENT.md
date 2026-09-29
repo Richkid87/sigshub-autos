@@ -17,7 +17,7 @@ You can either:
 1. In hPanel, navigate to **Websites > Manage** for your domain.
 2. In the left menu, search for **Node.js** (under *Advanced*).
 3. Set the following settings:
-   - **Node.js version:** `20.x` (or `18.x` minimum)
+   - **Node.js version:** `20.x` (Recommended: Node 20 LTS. Avoid Node 22 due to Turbopack / PostCSS child process compatibility issues)
    - **Application mode:** `Production`
    - **Application root:** `/home/uXXXXXXX/public_html` (or your domain path)
    - **Application URL:** `https://yourdomain.com`
@@ -39,6 +39,8 @@ Via SSH or Hostinger Web Terminal:
 cd public_html
 npm install
 npm run build
+# Or if Turbopack ever has issues on your environment:
+# npm run build:webpack
 ```
 
 ### 5. Start the Application
