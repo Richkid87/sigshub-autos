@@ -17,17 +17,17 @@ You can either:
 1. In hPanel, navigate to **Websites > Manage** for your domain.
 2. In the left menu, search for **Node.js** (under *Advanced*).
 3. Set the following settings:
-   - **Node.js version:** `20.x` (Recommended: Node 20 LTS. Avoid Node 22 due to Turbopack / PostCSS child process compatibility issues)
+   - **Node.js version:** `22.x` (or `20.x` with minimum `20.9.0`)
    - **Application mode:** `Production`
-   - **Application root:** `/home/uXXXXXXX/public_html` (or your domain path)
-   - **Application URL:** `https://yourdomain.com`
+   - **Application root:** `/home/u362629995/domains/sigsautos.com/public_html`
+   - **Application URL:** `https://sigsautos.com`
    - **Application startup file:** `server.js`
 
 ### 3. Add Environment Variables
 In the **Environment Variables** section in the Node.js settings, add:
-- `NEXT_PUBLIC_SUPABASE_URL` = `https://<your-project-id>.supabase.co`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `<your-supabase-anon-key>`
-- `ADMIN_PASSWORD` = `<your-admin-password>`
+- `NEXT_PUBLIC_SUPABASE_URL` = `https://zbkjuvarxaijwmugkkwr.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpia2p1dmFyeGFpandtdWdra3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDU2MjIsImV4cCI6MjA5NzUyMTYyMn0.KmwA5C6hzXTWbgNxmPVwcF-IKai3D7qP-uXjQNcvY6E`
+- `ADMIN_PASSWORD` = `Standard2026`
 - `NODE_ENV` = `production`
 - `PORT` = `3000`
 
