@@ -1,0 +1,306 @@
+warning: in the working copy of '.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'HOSTINGER_DEPLOYMENT.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/lib/supabase.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'db.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.env.example b/.env.example[m
+[1mindex 02ef248..4fef96e 100644[m
+[1m--- a/.env.example[m
+[1m+++ b/.env.example[m
+[36m@@ -2,6 +2,8 @@[m
+ # Copy these values into Hostinger hPanel > Node.js > Environment Variables[m
+ # or create a .env file in the deployment root.[m
+ [m
+[32m+[m[32mSUPABASE_URL=https://your-project-ref.supabase.co[m
+[32m+[m[32mSUPABASE_API_KEY=your-supabase-anon-key[m
+ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co[m
+ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key[m
+ ADMIN_PASSWORD=your-secure-admin-password[m
+[1mdiff --git a/HOSTINGER_DEPLOYMENT.md b/HOSTINGER_DEPLOYMENT.md[m
+[1mindex f8cedb3..6b4f608 100644[m
+[1m--- a/HOSTINGER_DEPLOYMENT.md[m
+[1m+++ b/HOSTINGER_DEPLOYMENT.md[m
+[36m@@ -25,6 +25,8 @@[m [mYou can either:[m
+ [m
+ ### 3. Add Environment Variables[m
+ In the **Environment Variables** section in the Node.js settings, add:[m
+[32m+[m[32m- `SUPABASE_URL` = `https://zbkjuvarxaijwmugkkwr.supabase.co`[m
+[32m+[m[32m- `SUPABASE_API_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpia2p1dmFyeGFpandtdWdra3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDU2MjIsImV4cCI6MjA5NzUyMTYyMn0.KmwA5C6hzXTWbgNxmPVwcF-IKai3D7qP-uXjQNcvY6E`[m
+ - `NEXT_PUBLIC_SUPABASE_URL` = `https://zbkjuvarxaijwmugkkwr.supabase.co`[m
+ - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpia2p1dmFyeGFpandtdWdra3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDU2MjIsImV4cCI6MjA5NzUyMTYyMn0.KmwA5C6hzXTWbgNxmPVwcF-IKai3D7qP-uXjQNcvY6E`[m
+ - `ADMIN_PASSWORD` = `Standard2026`[m
+[1mdiff --git a/app/lib/supabase.js b/app/lib/supabase.js[m
+[1mindex a68de58..047adb1 100644[m
+[1m--- a/app/lib/supabase.js[m
+[1m+++ b/app/lib/supabase.js[m
+[36m@@ -1,7 +1,7 @@[m
+ import { createClient } from '@supabase/supabase-js'[m
+ [m
+ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL[m
+[31m-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY[m
+[32m+[m[32mconst supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_API_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY[m
+ [m
+ // Safe initialization — won't crash the module if env vars are missing during[m
+ // local dev without a .env.local file; errors surface at query time instead.[m
+[1mdiff --git a/db.js b/db.js[m
+[1mindex bfb53f6..75fd5d3 100644[m
+[1m--- a/db.js[m
+[1m+++ b/db.js[m
+[36m@@ -1,9 +1,9 @@[m
+ const { createClient } = require('@supabase/supabase-js');[m
+ [m
+[31m-// Hostinger sets SUPABASE_URL and SUPABASE_KEY/SUPABASE_ANON_KEY automatically,[m
+[32m+[m[32m// Hostinger sets SUPABASE_URL and SUPABASE_API_KEY automatically,[m
+ // while local Next.js development uses NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.[m
+ const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;[m
+[31m-const supabaseKey = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;[m
+[32m+[m[32mconst supabaseKey = process.env.SUPABASE_API_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;[m
+ [m
+ const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;[m
+ [m
+[1mdiff --git a/package-lock.json b/package-lock.json[m
+[1mindex 6493f5e..1b1d7d1 100644[m
+[1m--- a/package-lock.json[m
+[1m+++ b/package-lock.json[m
+[36m@@ -8,22 +8,23 @@[m
+       "name": "sigshub-autos",[m
+       "version": "0.1.0",[m
+       "dependencies": {[m
+[31m-        "@supabase/supabase-js": "^2.108.2",[m
+[31m-        "next": "^16.3.7",[m
+[31m-        "react": "^19.2.7",[m
+[31m-        "react-dom": "^19.2.7"[m
+[31m-      },[m
+[31m-      "devDependencies": {[m
+[32m+[m[32m        "@supabase/supabase-js": "^2.0.0",[m
+         "autoprefixer": "^10.0.1",[m
+[32m+[m[32m        "next": "^16.3.7",[m
+         "postcss": "^8",[m
+[32m+[m[32m        "react": "^19.2.7",[m
+[32m+[m[32m        "react-dom": "^19.2.7",[m
+         "tailwindcss": "^3.3.0"[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "devDependencies": {},[m
+[32m+[m[32m      "engines": {[m
+[32m+[m[32m        "node": ">=20.9.0"[m
+       }[m
+     },[m
+     "node_modules/@alloc/quick-lru": {[m
+[31m-      "version": "5.2.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz",[m
+[31m-      "integrity": "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==",[m
+[31m-      "dev": true,[m
+[32m+[m[32m      "version": "5.3.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.3.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-U4+70Pc5ZS9osnCBCE5Jha/ciHM+Yp+CNMNC/7HvYbNRk1Ldd+f7qO65W5qfhu/TCv+/ozljlXXe9Nj8419DMA==",[m
+       "license": "MIT",[m
+       "engines": {[m
+         "node": ">=10"[m
+[36m@@ -547,7 +548,6 @@[m
+       "version": "0.3.13",[m
+       "resolved": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz",[m
+       "integrity": "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "@jridgewell/sourcemap-codec": "^1.5.0",[m
+[36m@@ -558,24 +558,21 @@[m
+       "version": "3.1.2",[m
+       "resolved": "https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz",[m
+       "integrity": "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "engines": {[m
+         "node": ">=6.0.0"[m
+       }[m
+     },[m
+     "node_modules/@jridgewell/sourcemap-codec": {[m
+[31m-      "version": "1.5.5",[m
+[31m-      "resolved": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz",[m
+[31m-      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==",[m
+[31m-      "dev": true,[m
+[32m+[m[32m      "version": "1.6.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==",[m
+       "license": "MIT"[m
+     },[m
+     "node_modules/@jridgewell/trace-mapping": {[m
+       "version": "0.3.31",[m
+       "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz",[m
+       "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "@jridgewell/resolve-uri": "^3.1.0",[m
+[36m@@ -720,7 +717,6 @@[m
+       "version": "2.1.5",[m
+       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",[m
+       "integrity": "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "@nodelib/fs.stat": "2.0.5",[m
+[36m@@ -734,7 +730,6 @@[m
+       "version": "2.0.5",[m
+       "resolved": "https://registry.npmjs.org/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz",[m
+       "integrity": "sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "engines": {[m
+         "node": ">= 8"[m
+[36m@@ -744,7 +739,6 @@[m
+       "version": "1.2.8",[m
+       "resolved": "https://registry.npmjs.org/@nodelib/fs.walk/-/fs.walk-1.2.8.tgz",[m
+       "integrity": "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==",[m
+[31m-      "dev": true,[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "@nodelib/fs.scandir": "2.1.5",[m
+[36m@@ -755,87 +749,95 @@[m
+       }[m
+     },[m
+     "node_modules/@supabase/auth-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-tNaQmBgodDZwgB40mRwVbxFy8IDYwjdpcZ0BYrWiwlULCSQoJj4QoG4zgJT7QRPXcqipefNOzvO/qAu4dF98ag==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-Z3WnGwrphYZubrLbxp5Iv0tLA9A5GhvKzJ/ZXglxqwd2QEH2R4dXRltjVJ8sIn4xEW2BSFIGT0yALVJIgZeDYw==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "tslib": "2.8.1"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+       }[m
+     },[m
+     "node_modules/@supabase/functions-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-RNUX8EiBy3iLwAX19jtRzLyePnl11/fHcgwDHLnpKcDSXt/5qBnh3LUwAtIjT21Q66QsmNUR2esrHziLCpNubw==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-6DT4ZIjmZxa9ANKaBIrjc86AyKrX8M376ynvNeOBBVad3eP7x3UHqWfDR2ynFkHGzCuOpr1A+kObmnahxuwuog==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "tslib": "2.8.1"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+       }[m
+     },[m
+     "node_modules/@supabase/phoenix": {[m
+[31m-      "version": "0.4.4",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.4.tgz",[m
+[31m-      "integrity": "sha512-Gt0pqoXuIqX/8dvG0OKp/wMCobXNH3klNbUPBNyOfN0YA1IswrM3HyWFMOPk1Jy+BRaIyDPcFx4jLBwHNmlyfQ==",[m
+[32m+[m[32m      "version": "0.4.5",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/phoenix/-/phoenix-0.4.5.tgz",[m
+[32m+[m[32m      "integrity": "sha512-aAn9H9ovVyeApKy11OWOrrOGq8DV68yWeH4ud2lN9fzn4aO8Zb5GLL9m1pUg9nLqIcT+ZDfAcsZe0E/nqdv2lw==",[m
+       "license": "MIT"[m
+     },[m
+     "node_modules/@supabase/postgrest-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-GQ28/Y8hk3CFmkb3kXH1h/AQx6JIYSQfO0CJMRVBcEKZoNy6C45cXAZ4fcJvRC5Id0cs6xnkUV0+c0rIocigsw==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-V1Qhn+M8xzJqCasOxHZ2KG19Fj39PxU7weEAmOK65/KTsWCRXboB4hcQwFvxRvM7ZikeP9IZWNvQkfjvSxzYFw==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "tslib": "2.8.1"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+       }[m
+     },[m
+     "node_modules/@supabase/realtime-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-aAGxCSUemZvQIibnCdvNvgaKib28I4rfrNjKbQ9cG1uBLwUsI7hVpGXgEbypCCDhLjQlDTAiJlu7rgljYUT73g==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-lYXSAIg3eAKA58riUED6Vb+TCzF8jtx18uOoiCaVJ7ZMre6FWBpwB1MPeW+B6vykJT/hPdiuqwcSB7ILMS21ew==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+[31m-        "@supabase/phoenix": "^0.4.2",[m
+[32m+[m[32m        "@supabase/phoenix": "0.4.5",[m
+         "tslib": "2.8.1"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+       }[m
+     },[m
+     "node_modules/@supabase/storage-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-TVZPQxXGxY2+A6yTtm77zUHsh70lBhYUEaJL8RQC+BghcX/ygiMG/rmXrNVBce30/WAeNPa8FiG8HbqlGeV05g==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-8gAJoVaxZa/War2kFRfJMxGk4M190Q7lJ70BofwGlRxU/u9pIodd6XyTvmXkxOKXWuIYtkDaYPZrIAUt1T/7FQ==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+         "iceberg-js": "^0.8.1",[m
+         "tslib": "2.8.1"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+       }[m
+     },[m
+     "node_modules/@supabase/supabase-js": {[m
+[31m-      "version": "2.108.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.108.2.tgz",[m
+[31m-      "integrity": "sha512-hFhnPveb5JQg4a0QYicM0swT253YHMdfeRAl2BKHOlI5VAzuHxUGSr8RbwNLYNPauWOgQMS1H8sz8bvYlgwUfQ==",[m
+[32m+[m[32m      "version": "2.117.2",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.117.2.tgz",[m
+[32m+[m[32m      "integrity": "sha512-eSG2VKnHR+Clp1PmidZ1/weJ8PJwoybjva3L2GgKqFG4YDS1Iqmc61psKGZP5xw6OMT2O7ZorPR42PY6q1BOXg==",[m
+       "license": "MIT",[m
+       "dependencies": {[m
+[31m-        "@supabase/auth-js": "2.108.2",[m
+[31m-        "@supabase/functions-js": "2.108.2",[m
+[31m-        "@supabase/postgrest-js": "2.108.2",[m
+[31m-        "@supabase/realtime-js": "2.108.2",[m
+[31m-        "@supabase/storage-js": "2.108.2"[m
+[32m+[m[32m        "@supabase/auth-js": "2.117.2",[m
+[32m+[m[32m        "@supabase/functions-js": "2.117.2",[m
+[32m+[m[32m        "@supabase/postgrest-js": "2.117.2",[m
+[32m+[m[32m        "@supabase/realtime-js": "2.117.2",[m
+[32m+[m[32m        "@supabase/storage-js": "2.117.2"[m
+       },[m
+       "engines": {[m
+[31m-        "node": ">=20.0.0"[m
+[32m+[m[32m        "node": ">=22.0.0"[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "peerDependencies": {[m
+[32m+[m[32m        "@opentelemetry/api": ">=1.0.0"[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "peerDependenciesMeta": {[m
+[32m+[m[32m        "@opentelemetry/api": {[m
+[32m+[m[32m          "optional": true[m
+[32m+[m[32m        }[m
+       }[m
+     },[m
+     "node_modules/@swc/helpers": {[m
+[36m@@ -851,14 +853,12 @@[m
+       "version": "1.3.0",[m
+       "resolved": "https://registry.npmjs.org/any-promise/-/any-promise-1.3.0.tgz",[m
+       "integrity": "sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==",[m
+[31m-      "dev": true,[m
+       "license": "MIT"[m
+     },[m
+     "node_modules/anymatch": {[m
+       "version": "3.1.3",[m
+       "resolved": "https://registry.npmjs.org/anymatch/-/anymatch-3.1.3.tgz",[m
+       "integrity": "sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==",[m
+[31m-      "dev": true,[m
+       "license": "ISC",[m
+       "dependencies": {[m
+         "normalize-path": "^3.0.0",[m
+[36m@@ -872,14 +872,12 @@[m
+       "version": "5.0.2",[m
+       "resolved": "https://registry.npmjs.org/arg/-/arg-5.0.2.tgz",[m
+       "integrity": "sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==",[m
+[31m-      "dev": true,[m
