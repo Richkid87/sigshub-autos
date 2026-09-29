@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { verifySessionToken } from './app/lib/auth'
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl
 
   // Protect all /admin/dashboard routes with HMAC verification
@@ -34,6 +34,8 @@ export async function middleware(request) {
 
   return response
 }
+
+export default proxy
 
 export const config = {
   matcher: [
