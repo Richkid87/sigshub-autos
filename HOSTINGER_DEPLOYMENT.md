@@ -1,6 +1,6 @@
 # 🚀 Hostinger Deployment Guide for SigsHub Autos
 
-This Next.js application is configured with `output: 'standalone'` and a custom production `server.js` ready for Hostinger.
+This Next.js application is configured with `output: 'standalone'`, a custom production `server.js`, and trailing-slash routes to avoid Hostinger redirect loops. Admin routes are part of the Next.js app; no separate `/admin` folder is needed.
 
 ---
 

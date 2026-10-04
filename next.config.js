@@ -5,6 +5,7 @@ const nextConfig = {
   
   // Standalone output bundles necessary production dependencies for Hostinger & VPS deployment
   output: 'standalone',
+  trailingSlash: true,
   
   // Security & performance optimizations
   poweredByHeader: false,
